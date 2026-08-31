@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="so">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Shaxda Bisha — Xalane vs Macawisley</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --ink:#e8eefc;
+    --muted:#93a4c4;
+    --surface:#111a2e;
+    --surface-2:#16223c;
+    --line:#25324f;
+    --gA:#f0b429; --gA-ink:#3b2a02;
+    --gB:#3b82f6; --gB-ink:#04162f;
+    --gC:#22c55e; --gC-ink:#04240f;
+    --gD:#94a3b8; --gD-ink:#141b26;
+    --xalane:#2563eb;
+    --macawisley:#dc2626;
+  }
+  html,body{ -webkit-text-size-adjust:100%; }
+  body{
+    font-family:'Inter', system-ui, -apple-system, "Segoe UI", sans-serif;
+    background:
+      radial-gradient(1100px 600px at 12% -8%, #1b2c52 0%, rgba(27,44,82,0) 60%),
+      radial-gradient(900px 520px at 92% 0%, #3a1430 0%, rgba(58,20,48,0) 58%),
+      #070d1a;
+    color:var(--ink);
+    min-height:100vh;
+  }
+  h1,h2,h3,.font-display{ font-family:'Outfit', system-ui, sans-serif; letter-spacing:-0.01em; }
+
+  .card{ background:var(--surface); border:1px solid var(--line); border-radius:20px; }
+  .pitch-lines{
+    background-image:repeating-linear-gradient(90deg, rgba(255,255,255,.035) 0 2px, rgba(255,255,255,0) 2px 46px);
+  }
+
+  /* Grade badges */
+  .badge{ display:inline-flex; align-items:center; justify-content:center;
+    width:26px; height:26px; border-radius:8px; font-weight:800; font-size:13px;
+    font-family:'Outfit',sans-serif; flex:0 0 auto; }
+  .badge-A{ background:var(--gA); color:var(--gA-ink); }
+  .badge-B{ background:var(--gB); color:#fff; }
+  .badge-C{ background:var(--gC); color:#04240f; }
+  .badge-D{ background:var(--gD); color:var(--gD-ink); }
+
+  .chip{ display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:999px;
+    font-size:12px; font-weight:700; border:1px solid var(--line); background:var(--surface-2); color:var(--muted); }
+
+  /* Team panels */
+  .team{ border-radius:18px; overflow:hidden; border:1px solid var(--line); background:var(--surface-2); }
+  .team-head{ padding:14px 16px; display:flex; align-items:center; justify-content:space-between; gap:10px; }
+  .team-xalane .team-head{ background:linear-gradient(135deg,#1d4ed8 0%,#3b82f6 100%); }
+  .team-macawisley .team-head{ background:linear-gradient(135deg,#b91c1c 0%,#ef4444 100%); }
+  .team-xalane{ box-shadow:inset 0 0 0 1px rgba(59,130,246,.25); }
+  .team-macawisley{ box-shadow:inset 0 0 0 1px rgba(239,68,68,.25); }
+
+  .prow{ display:flex; align-items:center; gap:12px; padding:11px 14px; border-top:1px solid rgba(255,255,255,.06); }
+  .prow:first-child{ border-top:0; }
+  .prow .nm{ font-weight:600; font-size:15px; line-height:1.2; }
+  .prow .sc{ margin-inline-start:auto; font-size:12px; font-weight:700; color:var(--muted);
+    background:rgba(255,255,255,.06); padding:3px 9px; border-radius:999px; }
+  .cap{ background:linear-gradient(180deg, rgba(240,180,41,.20), rgba(240,180,41,.07)); }
+  .cap-chip{ display:inline-flex; align-items:center; gap:4px; font-size:10.5px; font-weight:800;
+    letter-spacing:.04em; padding:2px 7px; border-radius:999px; background:var(--gA); color:var(--gA-ink);
+    font-family:'Outfit',sans-serif; }
+
+  /* Deal-in animation */
+  @keyframes dealIn{
+    0%{ opacity:0; transform:translateY(14px) scale(.97); }
+    100%{ opacity:1; transform:translateY(0) scale(1); }
+  }
+  .deal{ opacity:0; animation:dealIn .38s cubic-bezier(.2,.8,.25,1) forwards; }
+  @keyframes popIn{ 0%{opacity:0; transform:scale(.96)} 100%{opacity:1; transform:scale(1)} }
+  .pop{ animation:popIn .28s ease-out both; }
+  @media (prefers-reduced-motion: reduce){
+    .deal,.pop{ animation:none !important; opacity:1 !important; transform:none !important; }
+  }
+
+  .btn-main{
+    background:linear-gradient(135deg,#16a34a 0%,#22c55e 55%,#4ade80 100%);
+    color:#04240f; font-family:'Outfit',sans-serif; font-weight:800;
+    box-shadow:0 10px 30px -8px rgba(34,197,94,.55);
+    transition:transform .12s ease, box-shadow .2s ease, filter .2s ease;
+  }
+  .btn-main:hover{ transform:translateY(-1px); filter:brightness(1.04); }
+  .btn-main:active{ transform:translateY(0); }
+  .btn-main:disabled{ filter:grayscale(.75) brightness(.7); box-shadow:none; cursor:not-allowed; transform:none; }
+
+  .btn-ghost{ border:1px solid var(--line); background:var(--surface-2); color:var(--ink);
+    font-weight:700; transition:background .15s ease, border-color .15s ease; }
+  .btn-ghost:hover{ background:#1d2b4b; border-color:#35507f; }
+
+  select,input[type=number]{
+    background:#0e1830; border:1px solid var(--line); color:var(--ink); border-radius:10px;
+    padding:8px 10px; font-weight:600; font-size:14px; width:100%;
+  }
+  select:focus,input:focus{ outline:2px solid #3b82f6; outline-offset:1px; }
+
+  .modal-back{ background:rgba(4,8,18,.72); backdrop-filter:blur(4px); }
+
+  /* Fallback only — the PDF button builds a real vector document.
+     This keeps Ctrl+P / the fallback from printing a black page. */
+  @media print{
+    body{ background:#fff !important; }
+    .no-print{ display:none !important; }
+    header{ display:none !important; }
+    #resultCard{ background:#fff !important; box-shadow:none !important; border:1px solid #d8e0ee !important; }
+    #resultCard *{ color:#0f172a !important; }
+    .team{ background:#fff !important; box-shadow:none !important; border:1px solid #d8e0ee !important; }
+    .prow{ border-top-color:#e6ebf5 !important; }
+    .prow .sc{ background:#eef2f9 !important; color:#475569 !important; }
+    .cap{ background:#fdf3d8 !important; }
+    .team-head *{ color:#fff !important; }
+    .cap-chip{ background:#f2c94c !important; color:#7a5600 !important; }
+    .badge-B, .badge-C{ color:#fff !important; }
+  }
+</style>
+</head>
+<body class="pb-16">
+
+<!-- ===== Header ===== -->
+<header class="pitch-lines border-b border-[color:var(--line)]">
+  <div class="max-w-5xl mx-auto px-4 py-6 sm:py-8">
+    <div class="flex items-start justify-between gap-4 flex-wrap">
+      <div>
+        <p class="text-[11px] font-bold tracking-[.18em] uppercase text-[color:var(--muted)]">Kubbadda Cagta · 8 vs 8</p>
+        <h1 class="font-display text-3xl sm:text-4xl font-black mt-1">Shaxda Bisha</h1>
+        <p class="text-sm text-[color:var(--muted)] mt-1">Kooxda Xalane <span class="opacity-50">vs</span> Kooxda Macawisley</p>
+      </div>
+      <div class="w-full sm:w-auto text-left sm:text-right">
+        <span id="monthChip" class="chip !text-[color:var(--ink)] !bg-[color:var(--surface-2)]">—</span>
+        <p id="lockChip" class="mt-2 text-xs font-bold text-[color:var(--muted)]"></p>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="max-w-5xl mx-auto px-4 mt-6 space-y-6">
+
+  <!-- ===== Generate ===== -->
+  <section class="card p-5 sm:p-6 no-print">
+    <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+      <div class="flex-1">
+        <h2 class="font-display text-xl font-extrabold">Samee shaxda <span id="genMonth">—</span></h2>
+        <p class="text-sm text-[color:var(--muted)] mt-1 leading-relaxed">
+          Koox kastaa waxay heli doontaa <b class="text-[color:var(--ink)]">2 A + 2 B + 2 C + 2 D</b> — 8 ciyaartoy.
+          Bishii waa <b class="text-[color:var(--ink)]">hal mar oo keliya</b>.
+        </p>
+      </div>
+      <button id="genBtn" class="btn-main px-7 py-4 rounded-2xl text-lg w-full sm:w-auto shrink-0">
+        ⚽ Samee Shaxda
+      </button>
+    </div>
+    <div id="invalidNote" class="hidden mt-4 rounded-xl border border-amber-500/40 bg-amber-500/10 text-amber-200 px-4 py-3 text-sm font-semibold"></div>
+  </section>
+
+  <!-- ===== Result card ===== -->
+  <section id="resultWrap" class="hidden">
+    <div id="resultCard" class="card overflow-hidden" style="background:#0f1729;">
+      <div class="px-5 sm:px-7 pt-6 pb-5 border-b border-[color:var(--line)] pitch-lines">
+        <div class="flex items-start justify-between gap-4 flex-wrap">
+          <div>
+            <p class="text-[11px] font-bold tracking-[.18em] uppercase" style="color:#93a4c4;">Shaxda Bisha</p>
+            <h2 id="cardMonth" class="font-display text-2xl sm:text-3xl font-black mt-1">—</h2>
+          </div>
+          <div class="text-right">
+            <p class="text-[11px] font-bold uppercase tracking-wider" style="color:#93a4c4;">La sameeyay</p>
+            <p id="cardDate" class="font-display font-bold text-sm mt-1">—</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="p-4 sm:p-6 grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
+        <!-- Xalane -->
+        <div class="team team-xalane">
+          <div class="team-head">
+            <div>
+              <p class="text-[10.5px] font-bold uppercase tracking-[.16em] text-white/70">Kooxda</p>
+              <h3 class="font-display text-xl font-black text-white leading-tight">Xalane</h3>
+            </div>
+            <span class="text-white/85 text-xs font-bold bg-black/25 px-3 py-1.5 rounded-full">8 ciyaartoy</span>
+          </div>
+          <div id="teamXalane"></div>
+        </div>
+
+        <!-- Macawisley -->
+        <div class="team team-macawisley">
+          <div class="team-head">
+            <div>
+              <p class="text-[10.5px] font-bold uppercase tracking-[.16em] text-white/70">Kooxda</p>
+              <h3 class="font-display text-xl font-black text-white leading-tight">Macawisley</h3>
+            </div>
+            <span class="text-white/85 text-xs font-bold bg-black/25 px-3 py-1.5 rounded-full">8 ciyaartoy</span>
+          </div>
+          <div id="teamMacawisley"></div>
+        </div>
+      </div>
+
+      <div class="px-5 sm:px-7 pb-6 -mt-1">
+        <div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-[11.5px] font-semibold" style="color:#93a4c4;">
+          <span class="inline-flex items-center gap-1.5"><i class="badge badge-A" style="width:18px;height:18px;font-size:10px">A</i> Grade A</span>
+          <span class="inline-flex items-center gap-1.5"><i class="badge badge-B" style="width:18px;height:18px;font-size:10px">B</i> Grade B</span>
+          <span class="inline-flex items-center gap-1.5"><i class="badge badge-C" style="width:18px;height:18px;font-size:10px">C</i> Grade C</span>
+          <span class="inline-flex items-center gap-1.5"><i class="badge badge-D" style="width:18px;height:18px;font-size:10px">D</i> Grade D</span>
+          <span class="inline-flex items-center gap-1.5"><i class="cap-chip">C</i> Kabtanka kooxda</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-4 flex flex-col sm:flex-row gap-3 no-print">
+      <button id="pdfBtn" class="btn-ghost px-5 py-3 rounded-xl flex-1 sm:flex-none">⬇️ Soo deji PDF</button>
+      <p class="text-xs text-[color:var(--muted)] sm:self-center leading-relaxed">
+        Waxaad sidoo kale sawir (screenshot) ka qaadan kartaa kaadhkan oo aad group-ka ku wadaagi kartaa.
+      </p>
+    </div>
+  </section>
+
+  <!-- ===== Squad / grades ===== -->
+  <section class="card p-5 sm:p-6 no-print">
+    <div class="flex items-center justify-between gap-3 flex-wrap">
+      <div>
+        <h2 class="font-display text-xl font-extrabold">Ciyaartoyda (16)</h2>
+        <p class="text-sm text-[color:var(--muted)] mt-1">Grade-yada iyo dhibcaha hadda socda.</p>
+      </div>
+      <button id="editToggle" class="btn-ghost px-4 py-2.5 rounded-xl text-sm">✏️ Wax ka beddel Grade-yada</button>
+    </div>
+
+    <!-- read-only squad -->
+    <div id="squadView" class="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5"></div>
+
+    <!-- editor -->
+    <div id="editPanel" class="hidden mt-5">
+      <div id="countBar" class="mb-4 flex flex-wrap gap-2"></div>
+      <div id="editWarn" class="hidden mb-4 rounded-xl border border-red-500/40 bg-red-500/10 text-red-200 px-4 py-3 text-sm font-semibold"></div>
+      <div id="editRows" class="space-y-2"></div>
+      <div class="mt-5 flex flex-col sm:flex-row gap-3">
+        <button id="saveBtn" class="btn-main px-6 py-3 rounded-xl">✅ Kaydi beddelka</button>
+        <button id="resetBtn" class="btn-ghost px-5 py-3 rounded-xl">↩️ Ku celi asalkii</button>
+        <button id="cancelBtn" class="btn-ghost px-5 py-3 rounded-xl">Jooji</button>
+      </div>
+      <p class="text-xs text-[color:var(--muted)] mt-3">
+        Xusuusnow: grade kastaa waa inuu si sax ah u leeyahay <b>4 ciyaartoy</b>. Beddelka grade-yada shaxda bishan ma furayo.
+      </p>
+    </div>
+  </section>
+
+  <!-- ===== Admin / maamul ===== -->
+  <section class="card p-5 sm:p-6 no-print">
+    <div class="flex items-center justify-between gap-3 flex-wrap">
+      <div>
+        <h2 class="font-display text-xl font-extrabold">Maamulka</h2>
+        <p class="text-sm text-[color:var(--muted)] mt-1">Bisha shaxda iyo furitaanka haddii khalad dhaco.</p>
+      </div>
+      <button id="adminToggle" class="btn-ghost px-4 py-2.5 rounded-xl text-sm">⚙️ Fur maamulka</button>
+    </div>
+
+    <div id="adminPanel" class="hidden mt-5 space-y-6">
+
+      <!-- month picker -->
+      <div>
+        <p class="font-display font-bold text-sm mb-2">Bisha shaxda</p>
+        <div class="flex items-center gap-2 flex-wrap">
+          <button id="monthPrev" class="btn-ghost w-11 h-11 rounded-xl text-lg" aria-label="Bishii hore">◀</button>
+          <span id="targetMonthLabel" class="font-display font-black text-lg px-4 py-2.5 rounded-xl border border-[color:var(--line)] bg-[color:var(--surface-2)] min-w-[190px] text-center">—</span>
+          <button id="monthNext" class="btn-ghost w-11 h-11 rounded-xl text-lg" aria-label="Bisha xigta">▶</button>
+        </div>
+        <p class="text-xs text-[color:var(--muted)] mt-3 leading-relaxed">
+          Marka bishu dhammaanayso (3 maalmood ama ka yar oo hadhay) waxay si toos ah ugu gudubtaa bisha soo socota,
+          si shaxda diyaar u noqoto maalinta 1-aad. Halkan kaliya ayaad ka hor u qaadi kartaa.
+        </p>
+      </div>
+
+      <!-- reset -->
+      <div class="border-t border-[color:var(--line)] pt-5">
+        <p class="font-display font-bold text-sm mb-2">Fur shaxda (reset)</p>
+        <p class="text-xs text-[color:var(--muted)] leading-relaxed mb-3">
+          Tan isticmaal <b class="text-amber-300">kaliya haddii khalad dhacay</b> — tusaale ahaan haddii shaxdu si qalad ah u samaysantay
+          ka hor inta aan la wadaagin. Shaxda hadda jirta way tirtiri doontaa, kadibna mar kale ayaad samayn kartaa.
+          Ha u isticmaalin in aad shaxda dib u ridid — dadku way ku kalsoon yihiin.
+        </p>
+        <button id="resetLockBtn" class="btn-ghost px-5 py-3 rounded-xl text-sm !border-red-500/40 !text-red-200">🔓 Fur shaxda bisha</button>
+
+        <div id="resetConfirm" class="hidden mt-4 rounded-xl border border-red-500/45 bg-red-500/10 px-4 py-4">
+          <p id="resetConfirmText" class="text-sm font-semibold text-red-100 leading-relaxed">—</p>
+          <div class="mt-4 flex flex-col sm:flex-row gap-2">
+            <button id="resetYes" class="px-5 py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-sm">Haa, tirtir shaxda</button>
+            <button id="resetNo" class="btn-ghost px-5 py-2.5 rounded-xl text-sm">Maya, jooji</button>
+          </div>
+        </div>
+        <p id="resetNone" class="hidden mt-3 text-xs font-semibold text-[color:var(--muted)]">Shax la furo majiro — bishan wax shax ah lama samayn.</p>
+      </div>
+    </div>
+  </section>
+
+  <p class="text-center text-xs text-[color:var(--muted)] pt-2 no-print">
+    Shaxdu waxay ku kaydsan tahay browser-kan oo keliya · Bil kasta hal shax
+  </p>
+</main>
+
+<!-- ===== Locked modal ===== -->
+<div id="lockModal" class="hidden fixed inset-0 z-50 modal-back items-center justify-center p-4">
+  <div class="card pop max-w-md w-full p-6 text-center" style="background:var(--surface-2);">
+    <div class="text-5xl mb-3">🚫</div>
+    <h3 class="font-display text-2xl font-black text-amber-300">Shaxda mar horaa la sameeyay</h3>
+    <p class="mt-3 text-[15px] leading-relaxed font-semibold">
+      Leader ayaad tahay — ha khiyaamayn dadka aad hogaaminayso. Shaxda bishan mar horaa la sameeyay.
+    </p>
+    <p id="lockModalSub" class="mt-3 text-sm text-[color:var(--muted)]"></p>
+    <button id="lockClose" class="btn-main w-full mt-6 px-6 py-3 rounded-xl">Waan fahmay</button>
+  </div>
+</div>
+
+<!-- ===== Toast ===== -->
+<div id="toast" class="hidden fixed bottom-5 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-xl font-bold text-sm shadow-2xl"></div>
+
+<script>
+/* ============================================================
+   Shaxda Bisha — 8 vs 8 balanced lineup generator
+   ============================================================ */
+
+const LS_PLAYERS = 'shaxda.players.v1';
+const LS_LINEUP  = 'shaxda.lineup.v1';
+const LS_TARGET  = 'shaxda.targetMonth.v1';
+
+const GRADES = ['A','B','C','D'];
+const PER_GRADE = 4;
+
+const SOMALI_MONTHS = ['Janaayo','Febraayo','Maarso','Abriil','Maajo','Juun',
+                       'Luulyo','Agoosto','Sebteembar','Oktoobar','Nofeembar','Diseembar'];
+
+const DEFAULT_PLAYERS = [
+  { id:'sahal',    name:'Sahal',             grade:'A', score:63 },
+  { id:'caamir',   name:'Caamir',            grade:'A', score:62 },
+  { id:'saalim',   name:'Saalim',            grade:'A', score:62 },
+  { id:'xeeseey',  name:'Xeeseey',           grade:'A', score:55 },
+  { id:'abdimalik',name:'Abdimalik',         grade:'B', score:54 },
+  { id:'aashito',  name:'Aashito',           grade:'B', score:44 },
+  { id:'tonni',    name:'Tonni',             grade:'B', score:41 },
+  { id:'salmaan',  name:'Salmaan Abdikarim', grade:'B', score:37 },
+  { id:'luqman',   name:'Luqman',            grade:'C', score:34 },
+  { id:'abdalle',  name:'Abdalle',           grade:'C', score:33 },
+  { id:'yonka',    name:'Yonka',             grade:'C', score:32 },
+  { id:'suhayb',   name:'Suhayb',            grade:'C', score:30 },
+  { id:'maskiinow',name:'Maskiinow',         grade:'D', score:30 },
+  { id:'osman',    name:'Osman',             grade:'D', score:22 },
+  { id:'kaabsool', name:'Kaabsool',          grade:'D', score:22 },
+  { id:'ciilow',   name:'Ciilow',            grade:'D', score:19 }
+];
+
+/* ---------- safe storage ---------- */
+function lsGet(key){
+  try{
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : null;
+  }catch(e){ console.warn('localStorage read failed', e); return null; }
+}
+function lsSet(key, value){
+  try{ localStorage.setItem(key, JSON.stringify(value)); return true; }
+  catch(e){ console.warn('localStorage write failed', e); return false; }
+}
+function lsDel(key){
+  try{ localStorage.removeItem(key); }catch(e){ console.warn('localStorage remove failed', e); }
+}
+
+/* ---------- helpers ---------- */
+const $ = (id) => document.getElementById(id);
+const clone = (o) => JSON.parse(JSON.stringify(o));
+
+function monthKey(d){ return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0'); }
+function monthLabel(d){ return SOMALI_MONTHS[d.getMonth()] + ' ' + d.getFullYear(); }
+function dateLabel(d){ return d.getDate() + ' ' + SOMALI_MONTHS[d.getMonth()] + ' ' + d.getFullYear(); }
+function monthFromKey(k){
+  const m = /^(\d{4})-(\d{2})$/.exec(String(k || ''));
+  return m ? new Date(+m[1], +m[2]-1, 1) : null;
+}
+function addMonths(d, n){ return new Date(d.getFullYear(), d.getMonth()+n, 1); }
+function daysLeftInMonth(d){
+  return new Date(d.getFullYear(), d.getMonth()+1, 0).getDate() - d.getDate();
+}
+
+/* The month the lineup is FOR.
+   Bishu markay dhammaanayso (3 maalmood ama ka yar) waxay si toos ah ugu gudubtaa bisha soo socota,
+   si shaxda loo diyaariyo maalinta 1-aad ee bisha cusub. */
+const ROLLOVER_DAYS = 3;
+function defaultTargetMonth(now){
+  const cur = new Date(now.getFullYear(), now.getMonth(), 1);
+  return daysLeftInMonth(now) <= ROLLOVER_DAYS ? addMonths(cur, 1) : cur;
+}
+function activeMonth(){
+  const def = defaultTargetMonth(new Date());
+  const saved = monthFromKey(lsGet(LS_TARGET));
+  // a manual pick only counts while it is still ahead of the automatic default
+  return (saved && saved > def) ? saved : def;
+}
+
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1; i>0; i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
+function gradeCounts(players){
+  const c = { A:0, B:0, C:0, D:0 };
+  players.forEach(p => { if(c[p.grade] !== undefined) c[p.grade]++; });
+  return c;
+}
+function isValidDistribution(players){
+  const c = gradeCounts(players);
+  return GRADES.every(g => c[g] === PER_GRADE);
+}
+
+/* ---------- state ---------- */
+let players = loadPlayers();
+let lineup  = loadLineup();
+let draft   = null;   // editing copy
+
+function loadPlayers(){
+  const saved = lsGet(LS_PLAYERS);
+  if(!Array.isArray(saved)) return clone(DEFAULT_PLAYERS);
+  // merge onto defaults by id so the roster stays exactly 16 known players
+  return DEFAULT_PLAYERS.map(def => {
+    const s = saved.find(x => x && x.id === def.id);
+    if(!s) return clone(def);
+    const grade = GRADES.includes(s.grade) ? s.grade : def.grade;
+    const score = Number.isFinite(Number(s.score)) ? Number(s.score) : def.score;
+    return { id:def.id, name:def.name, grade, score };
+  });
+}
+function loadLineup(){
+  const l = lsGet(LS_LINEUP);
+  if(!l || !l.monthKey || !l.teams) return null;
+  if(!Array.isArray(l.teams.xalane) || !Array.isArray(l.teams.macawisley)) return null;
+  return l;
+}
+
+const isLockedNow = () => !!lineup && lineup.monthKey === monthKey(activeMonth());
+
+/* ---------- lineup generation ---------- */
+function buildLineup(){
+  const t1 = [], t2 = [];
+  GRADES.forEach(g => {
+    const four = shuffle(players.filter(p => p.grade === g));
+    t1.push(four[0], four[1]);
+    t2.push(four[2], four[3]);
+  });
+  // randomise which side of the pitch each half lands on
+  const [A,B] = Math.random() < 0.5 ? [t1,t2] : [t2,t1];
+  const now = new Date();
+  return {
+    monthKey: monthKey(activeMonth()),
+    createdAt: now.toISOString(),
+    teams: { xalane: A.map(p=>p.id), macawisley: B.map(p=>p.id) },
+    // snapshot of grades/scores as they stood at generation time
+    snapshot: players.map(p => ({ id:p.id, name:p.name, grade:p.grade, score:p.score }))
+  };
+}
+
+function rosterOf(lu){
+  return (Array.isArray(lu.snapshot) && lu.snapshot.length) ? lu.snapshot : players;
+}
+function teamPlayers(lu, side){
+  const roster = rosterOf(lu);
+  const list = lu.teams[side]
+    .map(id => roster.find(p => p.id === id))
+    .filter(Boolean);
+  // A first, then B, C, D; higher score first inside each grade
+  return list.sort((a,b) =>
+    GRADES.indexOf(a.grade) - GRADES.indexOf(b.grade) || b.score - a.score || a.name.localeCompare(b.name)
+  );
+}
+function captainOf(list){
+  const as = list.filter(p => p.grade === 'A');
+  const pool = as.length ? as : list;
+  return pool.reduce((best,p) => (p.score > best.score ? p : best), pool[0]);
+}
+
+/* ---------- rendering ---------- */
+function renderTeam(containerId, list, animate, baseDelay){
+  const box = $(containerId);
+  box.innerHTML = '';
+  const cap = captainOf(list);
+  list.forEach((p, i) => {
+    const isCap = cap && p.id === cap.id;
+    const row = document.createElement('div');
+    row.className = 'prow' + (isCap ? ' cap' : '') + (animate ? ' deal' : '');
+    if(animate) row.style.animationDelay = (baseDelay + i*55) + 'ms';
+    row.innerHTML =
+      '<span class="badge badge-'+p.grade+'">'+p.grade+'</span>' +
+      '<span class="min-w-0">' +
+        '<span class="nm block truncate">'+escapeHtml(p.name)+'</span>' +
+        (isCap ? '<span class="cap-chip mt-1">⭐ KABTAN</span>' : '') +
+      '</span>' +
+      '<span class="sc">'+p.score+'</span>';
+    box.appendChild(row);
+  });
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function renderLineup(animate){
+  if(!lineup){ $('resultWrap').classList.add('hidden'); return; }
+  const created = new Date(lineup.createdAt);
+  const forMonth = monthFromKey(lineup.monthKey) || created;
+  $('cardMonth').textContent = monthLabel(forMonth);
+  $('cardDate').textContent  = dateLabel(created);
+  $('resultWrap').classList.remove('hidden');
+  renderTeam('teamXalane', teamPlayers(lineup,'xalane'), animate, 120);
+  renderTeam('teamMacawisley', teamPlayers(lineup,'macawisley'), animate, 200);
+}
+
+function renderSquad(){
+  const box = $('squadView');
+  box.innerHTML = '';
+  GRADES.forEach(g => {
+    const list = players.filter(p => p.grade === g).sort((a,b) => b.score - a.score);
+    const col = document.createElement('div');
+    col.innerHTML =
+      '<div class="flex items-center gap-2 mb-2">' +
+        '<span class="badge badge-'+g+'">'+g+'</span>' +
+        '<span class="font-display font-bold text-sm">Grade '+g+'</span>' +
+        '<span class="text-xs font-bold '+(list.length===PER_GRADE?'text-[color:var(--muted)]':'text-red-400')+'">('+list.length+'/4)</span>' +
+      '</div>' +
+      '<div class="space-y-1">' +
+        (list.length ? list.map(p =>
+          '<div class="flex items-center gap-2 text-sm">' +
+            '<span class="font-semibold">'+escapeHtml(p.name)+'</span>' +
+            '<span class="ms-auto text-xs font-bold text-[color:var(--muted)]">'+p.score+'</span>' +
+          '</div>').join('')
+        : '<p class="text-xs text-[color:var(--muted)]">Ciyaartoy ma jiro</p>') +
+      '</div>';
+    box.appendChild(col);
+  });
+}
+
+function renderHeader(){
+  const target = activeMonth();
+  $('monthChip').textContent = '📅 Shaxda bisha ' + monthLabel(target);
+  $('genMonth').textContent = monthLabel(target);
+  const locked = isLockedNow();
+  $('lockChip').innerHTML = locked
+    ? '<span class="text-amber-300">🔒 Shaxda ' + monthLabel(target) + ' waa la sameeyay</span>'
+    : '<span class="text-emerald-300">🟢 Shax lama samayn ' + monthLabel(target) + '</span>';
+
+  const valid = isValidDistribution(players);
+  const btn = $('genBtn');
+  btn.disabled = !valid;
+  btn.textContent = locked ? '🔒 Shaxda waa xiran tahay' : '⚽ Samee Shaxda';
+
+  const note = $('invalidNote');
+  if(valid){ note.classList.add('hidden'); }
+  else{
+    const c = gradeCounts(players);
+    note.classList.remove('hidden');
+    note.textContent = '⚠️ Qaybinta grade-yadu sax ma aha. Grade kastaa waa inuu leeyahay 4 ciyaartoy — hadda: ' +
+      GRADES.map(g => g+'='+c[g]).join(', ') + '. Shax lama samayn karo ilaa la hagaajiyo.';
+  }
+}
+
+function render(animate){
+  renderHeader();
+  renderSquad();
+  renderLineup(!!animate);
+  if(!$('adminPanel').classList.contains('hidden')) renderAdmin();
+}
+
+/* ---------- toast ---------- */
+let toastTimer = null;
+function toast(msg, kind){
+  const t = $('toast');
+  t.textContent = msg;
+  t.className = 'fixed bottom-5 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-xl font-bold text-sm shadow-2xl pop ' +
+    (kind === 'error' ? 'bg-red-500 text-white' : 'bg-emerald-500 text-emerald-950');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.add('hidden'), 2600);
+}
+
+/* ---------- lock modal ---------- */
+function showLockModal(){
+  const m = $('lockModal');
+  if(lineup){
+    const d = new Date(lineup.createdAt);
+    const forMonth = monthFromKey(lineup.monthKey) || d;
+    $('lockModalSub').textContent = 'Shaxda ' + monthLabel(forMonth) + ' waxaa la sameeyay ' + dateLabel(d) + '. ' +
+      'Bisha soo socota ayaad mar kale samayn kartaa.';
+  }
+  m.classList.remove('hidden');
+  m.classList.add('flex');
+}
+$('lockClose').addEventListener('click', () => {
+  $('lockModal').classList.add('hidden');
+  $('lockModal').classList.remove('flex');
+});
+$('lockModal').addEventListener('click', (e) => {
+  if(e.target === $('lockModal')) $('lockClose').click();
+});
+
+/* ---------- generate ---------- */
+$('genBtn').addEventListener('click', () => {
+  if(isLockedNow()){ showLockModal(); return; }
+  if(!isValidDistribution(players)){
+    toast('Grade kastaa waa inuu leeyahay 4 ciyaartoy.', 'error');
+    return;
+  }
+  lineup = buildLineup();
+  lsSet(LS_LINEUP, lineup);
+  hideResetConfirm();
+  render(true);
+  $('resultWrap').scrollIntoView({ behavior:'smooth', block:'start' });
+  toast('Shaxda bishan waa diyaar! 🎉');
+});
+
+/* ---------- grade editor ---------- */
+function openEditor(){
+  draft = clone(players);
+  renderEditor();
+  $('editPanel').classList.remove('hidden');
+  $('squadView').classList.add('hidden');
+  $('editToggle').textContent = '👁️ Muuji liiska';
+}
+function closeEditor(){
+  draft = null;
+  $('editPanel').classList.add('hidden');
+  $('squadView').classList.remove('hidden');
+  $('editToggle').textContent = '✏️ Wax ka beddel Grade-yada';
+}
+$('editToggle').addEventListener('click', () => {
+  if($('editPanel').classList.contains('hidden')) openEditor(); else closeEditor();
+});
+$('cancelBtn').addEventListener('click', closeEditor);
+
+function renderEditor(){
+  const rows = $('editRows');
+  rows.innerHTML = '';
+  draft.forEach((p, idx) => {
+    const row = document.createElement('div');
+    row.className = 'flex flex-wrap items-center gap-2 sm:gap-3 rounded-xl border border-[color:var(--line)] bg-[color:var(--surface-2)] px-3 py-2.5';
+    row.innerHTML =
+      '<div class="flex items-center gap-2 min-w-0 w-full sm:w-auto sm:flex-1">' +
+        '<span class="badge badge-'+p.grade+'" data-badge="'+idx+'">'+p.grade+'</span>' +
+        '<span class="font-semibold text-sm truncate">'+escapeHtml(p.name)+'</span>' +
+      '</div>' +
+      '<label class="flex-1 sm:flex-none sm:w-[120px]">' +
+        '<span class="sr-only">Grade ' + escapeHtml(p.name) + '</span>' +
+        '<select data-grade="'+idx+'">' +
+          GRADES.map(g => '<option value="'+g+'"'+(g===p.grade?' selected':'')+'>Grade '+g+'</option>').join('') +
+        '</select>' +
+      '</label>' +
+      '<label class="flex-1 sm:flex-none sm:w-[120px]">' +
+        '<span class="sr-only">Dhibco ' + escapeHtml(p.name) + '</span>' +
+        '<input type="number" data-score="'+idx+'" value="'+p.score+'" min="0" max="100" step="1">' +
+      '</label>';
+    rows.appendChild(row);
+  });
+
+  rows.querySelectorAll('select[data-grade]').forEach(sel => {
+    sel.addEventListener('change', e => {
+      const i = +e.target.dataset.grade;
+      draft[i].grade = e.target.value;
+      const b = rows.querySelector('[data-badge="'+i+'"]');
+      b.className = 'badge badge-' + draft[i].grade;
+      b.textContent = draft[i].grade;
+      b.setAttribute('data-badge', i);
+      renderEditorStatus();
+    });
+  });
+  rows.querySelectorAll('input[data-score]').forEach(inp => {
+    inp.addEventListener('input', e => {
+      const i = +e.target.dataset.score;
+      const v = parseInt(e.target.value, 10);
+      draft[i].score = Number.isFinite(v) ? v : 0;
+    });
+  });
+
+  renderEditorStatus();
+}
+
+function renderEditorStatus(){
+  const c = gradeCounts(draft);
+  $('countBar').innerHTML = GRADES.map(g => {
+    const ok = c[g] === PER_GRADE;
+    return '<span class="chip '+(ok?'!text-emerald-300 !border-emerald-500/40':'!text-red-300 !border-red-500/50')+'">' +
+      '<i class="badge badge-'+g+'" style="width:18px;height:18px;font-size:10px">'+g+'</i> ' + c[g] + '/4' +
+    '</span>';
+  }).join('');
+
+  const warn = $('editWarn');
+  const bad = GRADES.filter(g => c[g] !== PER_GRADE);
+  if(bad.length){
+    warn.classList.remove('hidden');
+    warn.textContent = '⚠️ Ma kaydin karo: grade kastaa waa inuu leeyahay afar (4) ciyaartoy. ' +
+      'Khaladka: ' + bad.map(g => 'Grade ' + g + ' waxuu leeyahay ' + c[g]).join(', ') + '.';
+  }else{
+    warn.classList.add('hidden');
+  }
+  $('saveBtn').disabled = bad.length > 0;
+}
+
+$('saveBtn').addEventListener('click', () => {
+  if(!draft) return;
+  if(!isValidDistribution(draft)){
+    toast('Grade kastaa waa inuu leeyahay 4 ciyaartoy.', 'error');
+    renderEditorStatus();
+    return;
+  }
+  players = clone(draft);
+  const ok = lsSet(LS_PLAYERS, players);
+  closeEditor();
+  render(false);
+  toast(ok ? 'Grade-yada waa la kaydiyay ✅' : 'La kaydiyay (browser-ku ma xasuusan karo)', ok ? 'ok' : 'error');
+});
+
+$('resetBtn').addEventListener('click', () => {
+  draft = clone(DEFAULT_PLAYERS);
+  renderEditor();
+  toast('Waxaa lagu celiyay grade-yadii asalka ahaa');
+});
+
+/* ---------- PDF (true vector A4 document, not a screenshot) ---------- */
+const PDF = {
+  ink:'#0F172A', sub:'#475569', muted:'#7A8AA3', hair:'#DCE3EE', zebra:'#F7F9FC',
+  capBg:'#FDF3D8', capInk:'#7A5600',
+  xalane:'#1D4ED8', macawisley:'#C81E1E',
+  grade:{ A:'#DFA100', B:'#2563EB', C:'#15A34A', D:'#64748B' },
+  gradeInk:{ A:'#3B2A02', B:'#FFFFFF', C:'#FFFFFF', D:'#FFFFFF' }
+};
+
+function pdfTeamBlock(doc, x, y, w, title, color, list){
+  const HEAD = 48, ROW = 36;
+  const cap = captainOf(list);
+
+  // header bar
+  doc.setFillColor(color);
+  doc.rect(x, y, w, HEAD, 'F');
+  doc.setTextColor('#FFFFFF');
+  doc.setFont('helvetica','normal'); doc.setFontSize(7);
+  doc.text('KOOXDA', x + 14, y + 19, { charSpace: 1.4 });
+  doc.setFont('helvetica','bold'); doc.setFontSize(16);
+  doc.text(title, x + 14, y + 37);
+  doc.setFont('helvetica','normal'); doc.setFontSize(8);
+  doc.text('8 CIYAARTOY', x + w - 14, y + 30, { align:'right', charSpace: 0.6 });
+
+  // rows
+  let ry = y + HEAD;
+  list.forEach((p, i) => {
+    const isCap = cap && p.id === cap.id;
+    if(isCap){ doc.setFillColor(PDF.capBg); doc.rect(x, ry, w, ROW, 'F'); }
+    else if(i % 2){ doc.setFillColor(PDF.zebra); doc.rect(x, ry, w, ROW, 'F'); }
+
+    // grade badge
+    doc.setFillColor(PDF.grade[p.grade]);
+    doc.roundedRect(x + 12, ry + 10, 17, 17, 3, 3, 'F');
+    doc.setTextColor(PDF.gradeInk[p.grade]);
+    doc.setFont('helvetica','bold'); doc.setFontSize(9.5);
+    doc.text(p.grade, x + 20.5, ry + 22, { align:'center' });
+
+    // name
+    doc.setTextColor(PDF.ink);
+    doc.setFont('helvetica','bold'); doc.setFontSize(11);
+    doc.text(p.name, x + 37, ry + 22.5);
+
+    // captain tag
+    if(isCap){
+      const nameW = doc.getTextWidth(p.name);
+      doc.setFont('helvetica','bold'); doc.setFontSize(6.5);
+      const tagW = doc.getTextWidth('KABTAN') + 12;
+      doc.setFillColor('#F2C94C');
+      doc.roundedRect(x + 37 + nameW + 7, ry + 12.5, tagW, 12.5, 3, 3, 'F');
+      doc.setTextColor(PDF.capInk);
+      doc.text('KABTAN', x + 37 + nameW + 7 + tagW/2, ry + 21, { align:'center', charSpace: 0.4 });
+    }
+
+    // score
+    doc.setTextColor(PDF.muted);
+    doc.setFont('helvetica','normal'); doc.setFontSize(10);
+    doc.text(String(p.score), x + w - 14, ry + 22.5, { align:'right' });
+
+    // row separator
+    if(i < list.length - 1){
+      doc.setDrawColor(PDF.hair); doc.setLineWidth(0.5);
+      doc.line(x + 12, ry + ROW, x + w - 12, ry + ROW);
+    }
+    ry += ROW;
+  });
+
+  // outline
+  doc.setDrawColor(PDF.hair); doc.setLineWidth(0.7);
+  doc.rect(x, y, w, HEAD + list.length * ROW, 'S');
+  return y + HEAD + list.length * ROW;
+}
+
+function buildPdfDoc(){
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit:'pt', format:'a4' });          // 595.28 x 841.89 pt
+  const W = doc.internal.pageSize.getWidth();
+  const H = doc.internal.pageSize.getHeight();
+  const M = 42, contentW = W - M*2, gutter = 19, colW = (contentW - gutter) / 2;
+
+  const created  = new Date(lineup.createdAt);
+  const forMonth = monthFromKey(lineup.monthKey) || created;
+
+  // top accent bar — the two team colours
+  doc.setFillColor(PDF.xalane);     doc.rect(0, 0, W/2, 6, 'F');
+  doc.setFillColor(PDF.macawisley); doc.rect(W/2, 0, W/2, 6, 'F');
+
+  // header
+  doc.setTextColor(PDF.muted);
+  doc.setFont('helvetica','bold'); doc.setFontSize(8);
+  doc.text('SHAXDA BISHA  ·  KUBBADDA CAGTA  ·  8 VS 8', M, 52, { charSpace: 1.5 });
+
+  doc.setTextColor(PDF.ink);
+  doc.setFont('helvetica','bold'); doc.setFontSize(27);
+  doc.text(monthLabel(forMonth), M, 86);
+
+  doc.setTextColor(PDF.muted);
+  doc.setFont('helvetica','bold'); doc.setFontSize(7.5);
+  doc.text('LA SAMEEYAY', W - M, 52, { align:'right', charSpace: 1.2 });
+  doc.setTextColor(PDF.sub);
+  doc.setFont('helvetica','bold'); doc.setFontSize(11);
+  doc.text(dateLabel(created), W - M, 68, { align:'right' });
+
+  doc.setDrawColor(PDF.hair); doc.setLineWidth(0.9);
+  doc.line(M, 106, W - M, 106);
+
+  // teams
+  const top = 134;
+  const b1 = pdfTeamBlock(doc, M, top, colW, 'XALANE', PDF.xalane, teamPlayers(lineup,'xalane'));
+  const b2 = pdfTeamBlock(doc, M + colW + gutter, top, colW, 'MACAWISLEY', PDF.macawisley, teamPlayers(lineup,'macawisley'));
+  let y = Math.max(b1, b2) + 26;
+
+  // legend
+  let lx = M;
+  doc.setFont('helvetica','normal'); doc.setFontSize(8.5);
+  GRADES.forEach(g => {
+    doc.setFillColor(PDF.grade[g]);
+    doc.roundedRect(lx, y - 7.5, 9, 9, 2, 2, 'F');
+    doc.setTextColor(PDF.sub);
+    doc.text('Grade ' + g, lx + 13, y);
+    lx += 13 + doc.getTextWidth('Grade ' + g) + 16;
+  });
+
+  // explanation of the split — anchored above the footer so the page reads balanced
+  const noteY = H - 92;
+  doc.setDrawColor(PDF.hair); doc.setLineWidth(0.7);
+  doc.line(M, noteY - 20, W - M, noteY - 20);
+  doc.setTextColor(PDF.sub);
+  doc.setFont('helvetica','normal'); doc.setFontSize(8.5);
+  doc.text('Koox kastaa waxay ka kooban tahay 2 Grade A, 2 Grade B, 2 Grade C iyo 2 Grade D — si labada koox u simanaadaan.', M, noteY);
+  doc.text('Kabtanku waa ciyaartoyga Grade A ee dhibcaha ugu badan leh kooxdiisa. Shaxda bishii hal mar ayaa la sameeyaa.', M, noteY + 13);
+
+  // footer
+  doc.setDrawColor(PDF.hair); doc.setLineWidth(0.7);
+  doc.line(M, H - 52, W - M, H - 52);
+  doc.setTextColor(PDF.muted);
+  doc.setFont('helvetica','normal'); doc.setFontSize(7.5);
+  doc.text('Kooxda Xalane  vs  Kooxda Macawisley', M, H - 36);
+  doc.text('Shaxda ' + monthLabel(forMonth), W - M, H - 36, { align:'right' });
+
+  return doc;
+}
+
+$('pdfBtn').addEventListener('click', () => {
+  const btn = $('pdfBtn');
+  const old = btn.textContent;
+  if(!lineup){ toast('Shax weli lama samayn.', 'error'); return; }
+  btn.disabled = true;
+  btn.textContent = '⏳ Diyaarinaya…';
+  try{
+    if(!window.jspdf) throw new Error('jsPDF missing');
+    const doc = buildPdfDoc();
+    const forMonth = monthFromKey(lineup.monthKey) || new Date(lineup.createdAt);
+    doc.save('Shaxda-Bisha-' + SOMALI_MONTHS[forMonth.getMonth()] + '-' + forMonth.getFullYear() + '.pdf');
+    toast('PDF waa la soo dejiyay 📄');
+  }catch(err){
+    console.warn('PDF failed, falling back to print', err);
+    toast('PDF ma shaqayn — daabacaadda ayaa la furay', 'error');
+    window.print();
+  }finally{
+    btn.disabled = false;
+    btn.textContent = old;
+  }
+});
+
+
+/* ---------- admin: month picker + reset ---------- */
+const MAX_LOOKAHEAD = 2;   // bilo ka badan hadda lama qaadi karo
+
+$('adminToggle').addEventListener('click', () => {
+  const p = $('adminPanel');
+  const open = p.classList.toggle('hidden') === false;
+  $('adminToggle').textContent = open ? '✖️ Xir maamulka' : '⚙️ Fur maamulka';
+  hideResetConfirm();
+  if(open) renderAdmin();
+});
+
+function shiftMonth(n){
+  const def = defaultTargetMonth(new Date());
+  const next = addMonths(activeMonth(), n);
+  if(next < def) { toast('Bishaas waa la dhaafay.', 'error'); return; }
+  if(next > addMonths(def, MAX_LOOKAHEAD)){ toast('Ma qaadi kartid in ka badan ' + MAX_LOOKAHEAD + ' bilood.', 'error'); return; }
+  lsSet(LS_TARGET, monthKey(next));
+  hideResetConfirm();
+  render(false);
+  renderAdmin();
+}
+$('monthPrev').addEventListener('click', () => shiftMonth(-1));
+$('monthNext').addEventListener('click', () => shiftMonth(1));
+
+function renderAdmin(){
+  const target = activeMonth();
+  const def = defaultTargetMonth(new Date());
+  $('targetMonthLabel').textContent = monthLabel(target);
+  $('monthPrev').disabled = monthKey(target) === monthKey(def);
+  $('monthNext').disabled = monthKey(target) === monthKey(addMonths(def, MAX_LOOKAHEAD));
+  [$('monthPrev'), $('monthNext')].forEach(b => b.style.opacity = b.disabled ? '.35' : '1');
+
+  const has = !!lineup;
+  $('resetLockBtn').classList.toggle('hidden', !has);
+  $('resetNone').classList.toggle('hidden', has);
+}
+
+function hideResetConfirm(){ $('resetConfirm').classList.add('hidden'); }
+
+$('resetLockBtn').addEventListener('click', () => {
+  if(!lineup) return;
+  const d = new Date(lineup.createdAt);
+  const forMonth = monthFromKey(lineup.monthKey) || d;
+  $('resetConfirmText').textContent =
+    'Ma hubtaa inaad tirtirto shaxda ' + monthLabel(forMonth) + ' (la sameeyay ' + dateLabel(d) + ')? ' +
+    'Marka la tirtiro, shax cusub oo gebi ahaanba kala duwan ayaa la samayn karaa — dib uma soo celin kartid tan hore.';
+  $('resetConfirm').classList.remove('hidden');
+});
+$('resetNo').addEventListener('click', hideResetConfirm);
+$('resetYes').addEventListener('click', () => {
+  lineup = null;
+  lsDel(LS_LINEUP);
+  hideResetConfirm();
+  render(false);
+  renderAdmin();
+  toast('Shaxdii waa la tirtiray — hadda mid cusub ayaad samayn kartaa');
+});
+
+/* ---------- boot ---------- */
+render(false);
+</script>
+</body>
+</html>
