@@ -72,16 +72,52 @@
     letter-spacing:.04em; padding:2px 7px; border-radius:999px; background:var(--gA); color:var(--gA-ink);
     font-family:'Outfit',sans-serif; }
 
-  /* Deal-in animation */
-  @keyframes dealIn{
-    0%{ opacity:0; transform:translateY(14px) scale(.97); }
-    100%{ opacity:1; transform:translateY(0) scale(1); }
+  /* ===== Reveal ceremony =====
+     Rows always occupy their final space — only opacity/transform change,
+     so nothing reflows mid-reveal (keeps it smooth on phones). */
+  /* The row keeps its slot (divider + background) and only its CONTENTS fade in,
+     so an unrevealed team reads as a team sheet waiting to be filled. */
+  .prow{ transition:background-color .3s ease; }
+  .prow > *{ transition:opacity .34s ease, transform .34s cubic-bezier(.2,.8,.25,1); will-change:opacity, transform; }
+  .prow.pending > *{ opacity:0; transform:translateY(9px) scale(.98); }
+  .prow.pending{ background-color:rgba(255,255,255,.012); }
+  .prow.pending.cap{ background-image:none; }   /* don't hint the captain early */
+  .cap-chip{ transition:opacity .3s ease, transform .34s cubic-bezier(.2,.9,.3,1.5); }
+  .cap-chip.pending{ opacity:0; transform:scale(.7); }
+
+  @keyframes revealPulse{
+    0%{   box-shadow: inset 3px 0 0 0 rgba(255,255,255,.6); background-color:rgba(255,255,255,.07); }
+    100%{ box-shadow: inset 3px 0 0 0 rgba(255,255,255,0); background-color:rgba(255,255,255,0); }
   }
-  .deal{ opacity:0; animation:dealIn .38s cubic-bezier(.2,.8,.25,1) forwards; }
+  .prow.just{ animation:revealPulse .75s ease-out; }
+
+  #revealCue{ display:flex; align-items:center; justify-content:center; gap:10px;
+    flex-wrap:wrap; padding:12px 16px; border-bottom:1px solid var(--line); }
+  .cue-count{ font-family:'Outfit',sans-serif; font-weight:800; font-size:13px;
+    padding:5px 11px; border-radius:999px; background:rgba(255,255,255,.07);
+    border:1px solid var(--line); color:var(--ink);
+    font-variant-numeric:tabular-nums;              /* no width jitter as it counts */
+    transition:transform .18s cubic-bezier(.2,.9,.3,1.6); }
+  .cue-count.bump{ transform:scale(1.13); }
+  /* the id selector above outranks Tailwind's .hidden, so restate it */
+  #revealCue.hidden{ display:none; }
+  #revealCue .cue-label{ font-family:'Outfit',sans-serif; font-weight:800; font-size:15px; letter-spacing:.01em; }
+  #revealCue .cue-sub{ font-size:11.5px; font-weight:700; color:var(--muted); letter-spacing:.09em; text-transform:uppercase; }
+  @keyframes cuePop{ 0%{opacity:0; transform:translateY(6px) scale(.94)} 100%{opacity:1; transform:none} }
+  #revealCue.cue-in{ animation:cuePop .3s cubic-bezier(.2,.8,.25,1) both; }
+
+  /* must read clearly against the team panels it floats over */
+  #skipBtn{ background:#eef3ff; color:#0b1220; border:1px solid rgba(255,255,255,.75);
+    font-family:'Outfit',sans-serif; font-weight:800; letter-spacing:.01em;
+    box-shadow:0 16px 38px -12px rgba(0,0,0,.95), 0 0 0 6px rgba(8,14,28,.45);
+    transition:transform .12s ease, filter .15s ease; }
+  #skipBtn:hover{ filter:brightness(1.05); transform:translate(-50%,-1px); }
+
   @keyframes popIn{ 0%{opacity:0; transform:scale(.96)} 100%{opacity:1; transform:scale(1)} }
   .pop{ animation:popIn .28s ease-out both; }
   @media (prefers-reduced-motion: reduce){
-    .deal,.pop{ animation:none !important; opacity:1 !important; transform:none !important; }
+    .pop,#revealCue.cue-in,.prow.just{ animation:none !important; }
+    .prow,.cap-chip,.cue-count{ transition:none !important; }
   }
 
   .btn-main{
@@ -178,6 +214,15 @@
         </div>
       </div>
 
+      <div id="revealCue" class="hidden no-print">
+        <span id="cueBadge" class="badge">A</span>
+        <span>
+          <span id="cueSub" class="cue-sub block">Waxaa la shaacinayaa</span>
+          <span id="cueLabel" class="cue-label">Grade A</span>
+        </span>
+        <span id="cueCount" class="cue-count" aria-live="polite">0 / 16</span>
+      </div>
+
       <div class="p-4 sm:p-6 grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
         <!-- Xalane -->
         <div class="team team-xalane">
@@ -215,7 +260,7 @@
       </div>
     </div>
 
-    <div class="mt-4 flex flex-col sm:flex-row gap-3 no-print">
+    <div id="resultActions" class="mt-4 flex flex-col sm:flex-row gap-3 no-print">
       <button id="pdfBtn" class="btn-ghost px-5 py-3 rounded-xl flex-1 sm:flex-none">⬇️ Soo deji PDF</button>
       <p class="text-xs text-[color:var(--muted)] sm:self-center leading-relaxed">
         Waxaad sidoo kale sawir (screenshot) ka qaadan kartaa kaadhkan oo aad group-ka ku wadaagi kartaa.
@@ -317,6 +362,11 @@
     <button id="lockClose" class="btn-main w-full mt-6 px-6 py-3 rounded-xl">Waan fahmay</button>
   </div>
 </div>
+
+<!-- ===== Skip the reveal ===== -->
+<button id="skipBtn" class="hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-40 px-6 py-3 rounded-full text-sm no-print">
+  ⏭️ Dhaafso — i tus shaxda
+</button>
 
 <!-- ===== Toast ===== -->
 <div id="toast" class="hidden fixed bottom-5 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-xl font-bold text-sm shadow-2xl"></div>
@@ -486,20 +536,20 @@ function captainOf(list){
 }
 
 /* ---------- rendering ---------- */
-function renderTeam(containerId, list, animate, baseDelay){
+function renderTeam(containerId, list, pending){
   const box = $(containerId);
   box.innerHTML = '';
   const cap = captainOf(list);
   list.forEach((p, i) => {
     const isCap = cap && p.id === cap.id;
     const row = document.createElement('div');
-    row.className = 'prow' + (isCap ? ' cap' : '') + (animate ? ' deal' : '');
-    if(animate) row.style.animationDelay = (baseDelay + i*55) + 'ms';
+    row.className = 'prow' + (isCap ? ' cap' : '') + (pending ? ' pending' : '');
+    row.dataset.idx = i;
     row.innerHTML =
       '<span class="badge badge-'+p.grade+'">'+p.grade+'</span>' +
       '<span class="min-w-0">' +
         '<span class="nm block truncate">'+escapeHtml(p.name)+'</span>' +
-        (isCap ? '<span class="cap-chip mt-1">⭐ KABTAN</span>' : '') +
+        (isCap ? '<span class="cap-chip mt-1'+(pending ? ' pending' : '')+'">⭐ KABTAN</span>' : '') +
       '</span>' +
       '<span class="sc">'+p.score+'</span>';
     box.appendChild(row);
@@ -510,15 +560,15 @@ function escapeHtml(s){
   return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 
-function renderLineup(animate){
+function renderLineup(ceremony){
   if(!lineup){ $('resultWrap').classList.add('hidden'); return; }
   const created = new Date(lineup.createdAt);
   const forMonth = monthFromKey(lineup.monthKey) || created;
   $('cardMonth').textContent = monthLabel(forMonth);
   $('cardDate').textContent  = dateLabel(created);
   $('resultWrap').classList.remove('hidden');
-  renderTeam('teamXalane', teamPlayers(lineup,'xalane'), animate, 120);
-  renderTeam('teamMacawisley', teamPlayers(lineup,'macawisley'), animate, 200);
+  renderTeam('teamXalane', teamPlayers(lineup,'xalane'), ceremony);
+  renderTeam('teamMacawisley', teamPlayers(lineup,'macawisley'), ceremony);
 }
 
 function renderSquad(){
@@ -569,12 +619,120 @@ function renderHeader(){
   }
 }
 
-function render(animate){
+function render(ceremony){
+  if(!ceremony) endCeremony();          // any plain re-render lands on the final state
   renderHeader();
   renderSquad();
-  renderLineup(!!animate);
+  renderLineup(!!ceremony);
   if(!$('adminPanel').classList.contains('hidden')) renderAdmin();
 }
+
+/* ---------- reveal ceremony ----------
+   The lineup is already computed and saved before any of this runs.
+   Everything here is presentation only: it reveals what is already decided,
+   and "Dhaafso" just jumps to the end of that reveal. */
+const CEREMONY = { LEAD: 620, STEP: 600, BAND: 3000, START: 320, OUTRO: 900 };
+let ceremonyTimers = [];
+let ceremonyOn = false;
+
+const reduceMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+function at(ms, fn){ ceremonyTimers.push(setTimeout(fn, ms)); }
+function clearCeremonyTimers(){ ceremonyTimers.forEach(clearTimeout); ceremonyTimers = []; }
+
+function showCue(grade, sub, label){
+  const cue = $('revealCue');
+  cue.classList.remove('hidden');
+  const badge = $('cueBadge');
+  badge.className = 'badge' + (grade ? ' badge-' + grade : '');
+  badge.textContent = grade || '✓';
+  if(!grade){ badge.style.background = '#22c55e'; badge.style.color = '#04240f'; }
+  else badge.style.cssText = '';
+  $('cueSub').textContent = sub;
+  $('cueLabel').textContent = label;
+  cue.classList.remove('cue-in');
+  void cue.offsetWidth;                 // restart the entrance animation
+  cue.classList.add('cue-in');
+}
+
+const ALL_ROWS = '#teamXalane .prow, #teamMacawisley .prow';
+function updateCount(){
+  const el = $('cueCount');
+  if(!el) return;
+  const rows = document.querySelectorAll(ALL_ROWS);
+  const shown = document.querySelectorAll(ALL_ROWS.replace(/.prow/g, '.prow:not(.pending)'));
+  const next = shown.length + ' / ' + rows.length;
+  if(el.textContent === next) return;
+  el.textContent = next;
+  el.classList.add('bump');
+  ceremonyTimers.push(setTimeout(() => el.classList.remove('bump'), 200));
+}
+
+function revealRow(containerId, idx){
+  const row = $(containerId).querySelector('.prow[data-idx="'+idx+'"]');
+  if(!row || !row.classList.contains('pending')) return;
+  row.classList.remove('pending');
+  updateCount();
+  row.classList.add('just');
+  at(760, () => row.classList.remove('just'));
+  const chip = row.querySelector('.cap-chip.pending');
+  if(chip) at(520, () => chip.classList.remove('pending'));   // armband lands after the name
+}
+
+function revealEverything(){
+  document.querySelectorAll('#teamXalane .prow.pending, #teamMacawisley .prow.pending')
+    .forEach(r => r.classList.remove('pending'));
+  document.querySelectorAll('.cap-chip.pending').forEach(c => c.classList.remove('pending'));
+  updateCount();
+}
+
+/* Leaves the page in its normal, fully-revealed state. Safe to call any time. */
+function endCeremony(){
+  clearCeremonyTimers();
+  ceremonyOn = false;
+  revealEverything();
+  document.querySelectorAll('.prow.just').forEach(r => r.classList.remove('just'));
+  $('revealCue').classList.add('hidden');
+  $('cueCount').classList.add('hidden');
+  $('skipBtn').classList.add('hidden');
+  $('resultActions').classList.remove('hidden');
+}
+
+function finishCeremony(){
+  revealEverything();
+  clearCeremonyTimers();
+  ceremonyOn = false;
+  $('skipBtn').classList.add('hidden');
+  $('resultActions').classList.remove('hidden');
+  $('cueCount').classList.add('hidden');
+  showCue(null, 'Diyaar', 'Shaxda waa dhammaatay');
+  ceremonyTimers.push(setTimeout(() => $('revealCue').classList.add('hidden'), 1600));
+  toast('Shaxda bishan waa diyaar! 🎉');
+}
+
+function runCeremony(){
+  if(reduceMotion()){ endCeremony(); toast('Shaxda bishan waa diyaar! 🎉'); return; }
+  clearCeremonyTimers();
+  ceremonyOn = true;
+  $('cueCount').classList.remove('hidden');
+  updateCount();                      // 0 / 16 before the first name lands
+  $('skipBtn').classList.remove('hidden');
+  $('resultActions').classList.add('hidden');
+
+  let t = CEREMONY.START;
+  GRADES.forEach((g, band) => {
+    at(t, () => showCue(g, 'Waxaa la shaacinayaa', 'Grade ' + g));
+    // two players per team per grade, alternating sides
+    for(let k = 0; k < 2; k++){
+      ['teamXalane','teamMacawisley'].forEach((id, side) => {
+        at(t + CEREMONY.LEAD + (k*2 + side) * CEREMONY.STEP, () => revealRow(id, band*2 + k));
+      });
+    }
+    t += CEREMONY.BAND;
+  });
+  at(t + 150, finishCeremony);
+}
+
+$('skipBtn').addEventListener('click', () => { if(ceremonyOn) finishCeremony(); });
 
 /* ---------- toast ---------- */
 let toastTimer = null;
@@ -614,12 +772,13 @@ $('genBtn').addEventListener('click', () => {
     toast('Grade kastaa waa inuu leeyahay 4 ciyaartoy.', 'error');
     return;
   }
+  // decided and persisted first — the ceremony below only reveals it
   lineup = buildLineup();
   lsSet(LS_LINEUP, lineup);
   hideResetConfirm();
   render(true);
   $('resultWrap').scrollIntoView({ behavior:'smooth', block:'start' });
-  toast('Shaxda bishan waa diyaar! 🎉');
+  runCeremony();
 });
 
 /* ---------- grade editor ---------- */
